@@ -34,6 +34,8 @@ class Year(models.Model):
 
 class Semester(models.Model):
     semester = models.IntegerField()
+    startDate = models.DateField()
+    endDate = models.DateField()
     year = models.ForeignKey(Year, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -74,7 +76,30 @@ class Student(models.Model):
     def __str__(self):
         return self.name
 
+class Session(models.Model):
+    class WeekDay(models.TextChoices):
+        MONDAY = "MON", "Monday"
+        TUESDAY = "TUE", "Tuesday"
+        WEDNESDAY = "WED", "Wednesday"
+        THURSDAY = "THU", "Thursday"
+        FRIDAY = "FRI", "Friday"
+        SATURDAY = "SAT", "Saturday"
+        SUNDAY = "SUN", "Sunday"
 
+    weekday = models.CharField(max_length=3, choices=WeekDay.choices)
+    dateTime = models.DateTimeField()
+    classType = models.ForeignKey(ClassType, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Session: {self.classType.subject}"
+
+class Timetable(models.Model):
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    sessions = models.ManyToManyField(Session)
+
+    def __str__(self):
+        return f"Timetable for Semester {self.semester.semester}"
 
 # class Attendance(models.Model):
 #     student = models.ForeignKey(Student, on_delete=models.CASCADE)

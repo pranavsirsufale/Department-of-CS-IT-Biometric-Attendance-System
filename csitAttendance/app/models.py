@@ -56,13 +56,20 @@ class ClassType(models.Model):
     def __str__(self):
         return self.type
 
+class StaffType(models.Model):
+    staffType = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.staffType
+
 class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    staffType = models.ForeignKey(StaffType, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     email = models.EmailField()
     mobile = models.CharField(max_length=15)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    isAdmin = models.BinaryField() # 0 for Teacher, 1 for Admin
+    isAdmin = models.BooleanField(default=False) # 0 for Teacher, 1 for Admin
 
     def __str__(self):
         return self.name
@@ -70,13 +77,14 @@ class Teacher(models.Model):
 class Student(models.Model):
     prn = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=100)
+    gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')])
     rollNumber = models.CharField(max_length=100, unique=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
-class Session(models.Model):
+class Timetable(models.Model):
     class WeekDay(models.TextChoices):
         MONDAY = "MON", "Monday"
         TUESDAY = "TUE", "Tuesday"
@@ -89,22 +97,22 @@ class Session(models.Model):
     weekday = models.CharField(max_length=3, choices=WeekDay.choices)
     dateTime = models.DateTimeField()
     classType = models.ForeignKey(ClassType, on_delete=models.CASCADE)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"Session: {self.classType.subject}"
-
-class Timetable(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    sessions = models.ManyToManyField(Session)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Timetable for Semester {self.semester.semester}"
 
-# class Attendance(models.Model):
-#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-#     date = models.DateField()
-#     status = models.BinaryField()
+class Session(models.Model):
+    timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
 
-#     def __str__(self):
-#         return f"{self.student.name} - {self.date} - {self.status}"
+    def __str__(self):
+        return f"Session for Semester {self.timetable.semester.semester} on {self.timetable.dateTime}"
+
+class Attendance(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE)
+    status = models.BinaryField() # 0 for Absent, 1 for Present
+
+    def __str__(self):
+        return f"Attendance for {self.student.name} in Session on {self.session.timetable.dateTime}"

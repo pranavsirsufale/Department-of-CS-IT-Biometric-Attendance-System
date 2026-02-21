@@ -3,7 +3,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j8i=l4(ecs5-r9r^3ac=y%5z9$cihrdtw=_+#3)7-q-f=h4)rf'
 DEBUG = True
-ALLOWED_HOSTS = ["localhost"]
+APPEND_SLASH=False
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -11,9 +12,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # "djangorestframework."
+    'rest_framework',
     'app'
 ]
-
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -23,9 +30,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 ROOT_URLCONF = 'csitAttendance.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -40,23 +45,20 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'csitAttendance.wsgi.application'
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "csit",
-        "USER": "root",
-        "PASSWORD": "pass@123",
+        "NAME": "attendance",
+        "USER": "store",
+        "PASSWORD": "Store@123",
         "HOST": "localhost",
         "PORT": "3306",
-        "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+        # "OPTIONS": {
+        #     "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+        # }
     }
 }
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

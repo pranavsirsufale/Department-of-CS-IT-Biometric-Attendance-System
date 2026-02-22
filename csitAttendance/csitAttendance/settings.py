@@ -4,7 +4,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j8i=l4(ecs5-r9r^3ac=y%5z9$cihrdtw=_+#3)7-q-f=h4)rf'
 DEBUG = True
 APPEND_SLASH=False
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+CORS_ALLOW_ALL_ORIGINS = True
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "http://localhost:3000", "http://localhost:5173"]
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -13,6 +14,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # "djangorestframework."
+    "corsheaders",
     'rest_framework',
     'app'
 ]
@@ -22,6 +24,7 @@ REST_FRAMEWORK = {
     ),
 }
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

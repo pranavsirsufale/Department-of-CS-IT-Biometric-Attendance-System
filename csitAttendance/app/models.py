@@ -9,17 +9,28 @@ class University(models.Model):
     def __str__(self):
         return self.name
 
+class Discipline(models.Model):
+    discipline = models.CharField(max_length=100)
+    university = models.ForeignKey(University, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.discipline
+
 class Department(models.Model):
     name = models.CharField(max_length=100)
-    category = models.CharField(max_length=100, null=False)
-    university = models.ForeignKey(University, on_delete=models.CASCADE)
+    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
+class AcademicLevel(models.Model):
+    academiclevel= models.CharField(max_length=50)
+    def __str__(self):
+        return self.academiclevel
+
 class Program(models.Model):
     name = models.CharField(max_length=100)
     duration = models.IntegerField(null=False)  # duration in Years
+    academiclevel = models.ForeignKey(AcademicLevel, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -43,15 +54,21 @@ class Semester(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=100)
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
+class DeliveryMode(models.Model):
+    mode = models.CharField(max_length=50) # 1 for theory , 2 for practicle , 3 for research
+    def __str__(self):
+        return self.type
+
 class ClassType(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     code = models.CharField(max_length=20, unique=True)
-    type = models.BinaryField() # 0 for Theory, 1 for Practical
+    deliverymode = models.ForeignKey(DeliveryMode, on_delete=models.DO_NOTHING) # 1 for Theory, 2 for Practical
 
     def __str__(self):
         return self.type
@@ -83,6 +100,13 @@ class Student(models.Model):
 
     def __str__(self):
         return self.name
+
+class Biometric(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, unique=True, primary_key=True)
+    biometric = models.TextField(null=True)
+
+    def __str__(self):
+        return self.biometric
 
 class Timetable(models.Model):
     class WeekDay(models.TextChoices):

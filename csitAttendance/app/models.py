@@ -38,6 +38,8 @@ class Program(models.Model):
 
 class Year(models.Model):
     year = models.IntegerField()
+    batchStartYear = models.PositiveIntegerField(max_length=5)
+    batchEndYear = models.PositiveIntegerField(max_length=5)
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -92,7 +94,7 @@ class Teacher(models.Model):
         return self.name
 
 class Student(models.Model):
-    prn = models.CharField(max_length=100, unique=True)
+    prn = models.CharField(max_length=100, unique=True, db_index=True)
     name = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')])
     rollNumber = models.CharField(max_length=100, unique=True)
@@ -102,7 +104,7 @@ class Student(models.Model):
         return self.name
 
 class Biometric(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, unique=True, primary_key=True)
+    student = models.OneToOneField(Student, on_delete=models.CASCADE)
     biometric = models.TextField(null=True)
 
     def __str__(self):
@@ -117,26 +119,30 @@ class Timetable(models.Model):
         FRIDAY = "FRI", "Friday"
         SATURDAY = "SAT", "Saturday"
         SUNDAY = "SUN", "Sunday"
-
     weekday = models.CharField(max_length=3, choices=WeekDay.choices)
-    dateTime = models.DateTimeField()
-    classType = models.ForeignKey(ClassType, on_delete=models.CASCADE)
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    startTime = models.TimeField()
+    endTime = models.TimeField()
+    classType = models.ForeignKey(ClassType, on_delete=models.CASCADE, db_index=True)
+    isCombined = models.BooleanField(default=False, db_index=True)
+    semesters = models.ManyToManyField(Semester, db_index=True)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, db_index=True)
 
     def __str__(self):
-        return f"Timetable for Semester {self.semester.semester}"
+        return f"Timetable for Semester {self.semesters.all().first().semester}"
 
 class Session(models.Model):
-    timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
+    timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE, db_index=True)
+    startDateTime = models.DateTimeField()
 
     def __str__(self):
-        return f"Session for Semester {self.timetable.semester.semester} on {self.timetable.dateTime}"
+        return f"Session for {self.timetable.classType.code} on {self.startDateTime.date()}"
 
 class Attendance(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    session = models.ForeignKey(Session, on_delete=models.CASCADE)
-    status = models.BinaryField() # 0 for Absent, 1 for Present
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, db_index=True)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, db_index=True)
+    status = models.BooleanField(default=False, db_index=True)
+    class Meta:
+            unique_together = ('student', 'session')
 
     def __str__(self):
         return f"Attendance for {self.student.name} in Session on {self.session.timetable.dateTime}"

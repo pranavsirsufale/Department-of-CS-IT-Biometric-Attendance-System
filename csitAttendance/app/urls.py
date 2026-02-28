@@ -1,7 +1,7 @@
 from rest_framework.routers import DefaultRouter
 from .views import (UniversityViewSet, DisciplineViewSet, DepartmentViewSet, AcademicLevelViewSet, ProgramViewSet, YearViewSet, 
                     SemesterViewSet, DeliveryModeViewSet, SubjectViewSet, StaffTypeViewSet, ClassTypeViewSet, TeacherViewSet, StudentViewSet,
-                    BiometricViewSet)
+                    BiometricViewSet, TimetableViewSet, SessionViewSet, AttendanceViewSet)
 
 router = DefaultRouter()
 router.register("university", UniversityViewSet)
@@ -18,7 +18,9 @@ router.register("staff-type", StaffTypeViewSet)
 router.register("teacher", TeacherViewSet)
 router.register("student", StudentViewSet)
 router.register("biometric", BiometricViewSet)
-
+router.register("timetable", TimetableViewSet)
+router.register("session", SessionViewSet)
+router.register("attendance", AttendanceViewSet)
 
 # TODO: make it more modular if possible. @rohan or @pranav. please try to make it more modular
 urlpatterns = router.urls

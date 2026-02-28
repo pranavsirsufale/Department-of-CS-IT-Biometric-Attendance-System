@@ -399,7 +399,7 @@ const Subject = () => {
           <div className="lg:col-span-1 space-y-6">
             
             {/* 0. ADD GLOBAL DELIVERY MODE */}
-            {/* <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 ring-2 ring-indigo-50">
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 ring-2 ring-indigo-50">
               <h2 className="text-xs font-bold text-slate-800 mb-4 flex items-center gap-2 uppercase tracking-widest text-indigo-600">
                 <Activity size={16} /> 0. Register Global Mode
               </h2>
@@ -416,7 +416,7 @@ const Subject = () => {
                   Add to Global List
                 </button>
               </form>
-            </div> */}
+            </div>
 
             {/* 1. ADD SUBJECT FORM */}
             <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">

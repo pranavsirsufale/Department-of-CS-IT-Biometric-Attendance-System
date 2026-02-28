@@ -24,15 +24,21 @@ const Student = () => {
     fetchData();
   }, []);
 
+  const authHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem("accessToken") || ""}`
+  };
   const fetchData = async () => {
     setLoading(true);
     try {
       const [stdRes, semRes, bioRes] = await Promise.all([
-        fetch(`${API_BASE}/student/`),
-        fetch(`${API_BASE}/semester/`),
-        fetch(`${API_BASE}/biometric/`)
+        fetch(`${API_BASE}/student/`, { headers: authHeaders }),
+        fetch(`${API_BASE}/semester/`, { headers: authHeaders }),
+        fetch(`${API_BASE}/biometric/`, { headers: authHeaders })
       ]);
-      setStudents(await stdRes.json());
+      const retrievedStudents = await stdRes.json();
+      console.log("Fetched Students:", retrievedStudents);
+      setStudents(retrievedStudents);
       setSemesters(await semRes.json());
       setBiometrics(await bioRes.json());
     } catch (error) {
@@ -46,7 +52,7 @@ const Student = () => {
     e.preventDefault();
     await fetch(`${API_BASE}/student/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders,
       body: JSON.stringify(studentForm),
     });
     setStudentForm({ prn: '', name: '', gender: 'M', rollNumber: '', semester: '' });
@@ -55,9 +61,11 @@ const Student = () => {
 
   const handleAddBiometric = async (e) => {
     e.preventDefault();
+    setBiometricForm(prev => ({ ...prev, student: parseInt(prev.student) }));
+    console.log("Submitting Biometric Data:", biometricForm);
     await fetch(`${API_BASE}/biometric/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders,
       body: JSON.stringify(biometricForm),
     });
     setBiometricForm({ student: '', biometric: '' });
@@ -66,7 +74,7 @@ const Student = () => {
 
   const deleteItem = async (endpoint, id) => {
     if (window.confirm("Permanent deletion! Are you sure?")) {
-      await fetch(`${API_BASE}/${endpoint}/${id}/`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/${endpoint}/${id}/`, { method: 'DELETE', headers: authHeaders });
       fetchData();
     }
   };

@@ -97,7 +97,7 @@ class Student(models.Model):
     prn = models.CharField(max_length=100, unique=True, db_index=True)
     name = models.CharField(max_length=100)
     gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')])
-    rollNumber = models.CharField(max_length=100, unique=True)
+    rollNumber = models.CharField(max_length=100)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
 
     def __str__(self):

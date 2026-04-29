@@ -299,6 +299,26 @@ export default function Header() {
                                     {/* ADMIN / HOD ONLY LINKS */}
                                     {isAdmin && (
                                         <>
+
+                           <li>
+                              <NavLink to='/academic-timeline'
+                                  className={({isActive}) =>
+                                      `block py-2 pr-4 pl-3 duration-200 ${isActive ? "text-orange-700" : "text-gray-700"} border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-orange-700 lg:p-0`
+                                  }
+                              >
+                                  Academic Timeline
+                              </NavLink>
+                          </li>
+
+                           <li>
+                              <NavLink to='/class-type'
+                                  className={({isActive}) =>
+                                      `block py-2 pr-4 pl-3 duration-200 ${isActive ? "text-orange-700" : "text-gray-700"} border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-orange-700 lg:p-0`
+                                  }
+                              >
+                                  Class and Subject
+                              </NavLink>
+                          </li>
                                             <li><NavLink to='/staff' className={({isActive}) => `block py-2 ${isActive ? "text-indigo-700" : "text-gray-700"} lg:p-0`}>Manage Staff</NavLink></li>
                                             <li><NavLink to='/program' className={({isActive}) => `block py-2 ${isActive ? "text-indigo-700" : "text-gray-700"} lg:p-0`}>Programs</NavLink></li>
                                         </>

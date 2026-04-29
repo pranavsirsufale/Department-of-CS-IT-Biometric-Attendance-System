@@ -46,10 +46,22 @@ class ProgramViewSet(ModelViewSet):
 class YearViewSet(ModelViewSet):
     queryset = Year.objects.all()
     serializer_class = YearSerializer
+    def get_queryset(self):
+        queryset = Year.objects.all()
+        programId = self.request.query_params.get("program")
+        if programId:
+            queryset = queryset.filter(program_id=programId)
+        return queryset
 
 class SemesterViewSet(ModelViewSet):
     queryset = Semester.objects.all()
     serializer_class = SemesterSerializer
+    def get_queryset(self):
+        queryset = Semester.objects.all()
+        yearId = self.request.query_params.get("year")
+        if yearId:
+            queryset = queryset.filter(year_id=yearId)
+        return queryset
 
 class SubjectViewSet(ModelViewSet):
     queryset = Subject.objects.all()
@@ -79,8 +91,11 @@ class StudentViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = Student.objects.all()
         semesterId = self.request.query_params.get("semester")
+        semesterIds = self.request.query_params.getlist("semesters")
         if semesterId:
             queryset = queryset.filter(semester_id=semesterId)
+        if semesterIds:
+            queryset = queryset.filter(semester__id__in=semesterIds).distinct()
         return queryset
 
 class BiometricViewSet(ModelViewSet):

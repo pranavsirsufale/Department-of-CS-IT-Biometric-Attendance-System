@@ -47,6 +47,7 @@ const TeacherSessions = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
       });
       const data = await res.json();
+      console.log("Fetched Timetables for Teacher:", data);
       setTimetables(data);
     } catch (err) {
       setStatus({ type: 'error', msg: 'Failed to load timetable rules.' });
@@ -73,6 +74,7 @@ const TeacherSessions = () => {
   };
 
   const handleOpenTimetable = (t) => {
+    console.log('Selected Timetable:', t);
     setSelectedTimetable(t);
     const today = new Date();
     setSelectedDate(today);
@@ -84,15 +86,34 @@ const TeacherSessions = () => {
     setSelectedDate(date);
     fetchSessionsByDate(selectedTimetable.id, date);
   };
+  
+  const handleRenderSemesters = (semesters) => {
+    // console.log('Rendering semesters for timetable:', semesters);
+    return semesters.map(sem => (
+      <span key={sem.id} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider">
+        Sem {sem.semester} ({sem?.year?.program?.name || 'N/A'})
+      </span>
+    ));
+  }
 
+  const getSemesterIdsInQueryManner = (semesters) => {
+    const semesterIds = semesters.map(sem => sem.id);
+    return semesterIds?.map(id => `semesters=${id}`).join("&");
+  };
+  
   const loadAttendanceSheet = async (session) => {
     setLoading(true);
+    console.log('Selected Session:', session);
+    console.log('Selected Timetable:', selectedTimetable);
+    const semesterIdsInQueryManner = getSemesterIdsInQueryManner(selectedTimetable.semesters);
+    console.log('Associated Semester IDs for Timetable:', semesterIdsInQueryManner);
     setSelectedSession(session);
     try {
-      const studentRes = await fetch(`${API_BASE}/student/?semester=${selectedTimetable.semester.id}`, {
+      const studentRes = await fetch(`${API_BASE}/student/?${semesterIdsInQueryManner}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
       });
       const studentData = await studentRes.json();
+      console.log('Fetched Students for Attendance:', studentData);
       setStudents(studentData);
 
       const attendanceRes = await fetch(`${API_BASE}/attendance/?session=${session.id}`, {
@@ -172,19 +193,23 @@ const TeacherSessions = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in">
             {timetables.map(t => (
               <div key={t.id} className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
-                <div className="flex flex-wrap gap-2 mb-6">
-                    <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider">{t.program}</span>
-                    <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider ${t.classType?.deliverymode?.mode === 'Practical' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}`}>
-                        {t.classType?.deliverymode?.mode}
-                    </span>
-                    <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider">Sem {t.semester?.semester}</span>
-                </div>
                 <h3 className="text-xl font-black text-slate-800 mb-2">{t.classType?.subject?.name}</h3>
                 <div className="flex items-center gap-2 text-slate-400 mb-6 font-mono text-xs font-bold uppercase tracking-widest">
                   <Hash size={14} className="text-indigo-400" /> {t.classType?.code}
+                  <span size={14} className="text-blue-600" > #{t?.weekday}DAY</span>
+                    <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider ${t.classType?.deliverymode?.mode === 'Practical' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}`}>
+                        {t.classType?.deliverymode?.mode}
+                    </span>
+                    <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider ${t.isCombined ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}`}>
+                        {t.isCombined ? 'Combined Lecture' : 'Regular Lecture'}
+                    </span>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-6">
+                    {/* <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider">{t.program}</span> */}
+                    {handleRenderSemesters(t?.semesters)}
                 </div>
                 <button onClick={() => handleOpenTimetable(t)} className="w-full py-5 bg-indigo-600 text-white font-black rounded-3xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-100 mt-auto">
-                  Open Today's Session <ChevronRight size={18} />
+                  Open Calendar to Mark Attendance. <ChevronRight size={18} />
                 </button>
               </div>
             ))}
@@ -281,10 +306,23 @@ const TeacherSessions = () => {
                 <div className="flex items-center gap-6">
                     <div className="bg-indigo-900 p-4 rounded-3xl text-white"><ClipboardList size={32}/></div>
                     <div>
-                        <h2 className="text-xl font-black text-slate-800">{selectedTimetable?.classType?.subject?.name}</h2>
+                      <h1 className="text-2xl font-black text-blue-900">{selectedSession?.timetable?.teacher?.name}</h1>
+                        <h2 className="text-xl font-black text-slate-800">{selectedSession?.subjectName}
+                          <span className={`ml-3 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider ${selectedSession?.timetable?.classType?.deliverymode?.mode === 'Practical' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}`}>
+                            #{selectedSession?.timetable?.classType?.code}
+                          </span>
+                          {/*  wheter session/class is combined */}
+                          <span className={`ml-2 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider ${selectedSession?.timetable?.isCombined ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}`}>
+                            {selectedSession?.timetable?.isCombined ? 'Combined Lecture' : 'Regular Lecture'}
+                          </span>
+                          {/* weekday */}
+                          <span className="ml-2 px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-slate-50 text-blue-700">
+                            #{selectedSession?.timetable?.weekday}DAY
+                          </span>
+                        </h2>
                         <div className="flex gap-4 mt-1">
-                            <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase"><Tag size={12}/> {selectedTimetable?.classType?.deliverymode?.mode}</div>
-                            <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase"><Layout size={12}/> Sem {selectedTimetable?.semester?.semester}</div>
+                            <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase"><Tag size={12}/> {selectedSession?.timetable?.classType?.deliverymode?.mode}</div>
+                            <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase"><Layout size={12}/>{handleRenderSemesters(selectedSession?.timetable?.semesters)}</div>
                         </div>
                     </div>
                 </div>
@@ -323,7 +361,8 @@ const TeacherSessions = () => {
                                     <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="px-10 py-6">
                                             <p className="font-black text-slate-800">{student.name}</p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase font-mono">PRN: {student.prn || student.rollNumber}</p>
+                                            <p className="text-[12px] font-bold text-slate-500 uppercase font-mono">PRN: {student.prn || student.rollNumber} | Roll Number: {student.rollNumber} | Gender: {student.gender}</p>
+                                            <p className="text-[13px] font-bold text-slate-700 uppercase font-mono">Program: {student.program} | Semester: {student.semesterNumber}</p>
                                         </td>
                                         <td className="px-10 py-6 text-right">
                                             <button 

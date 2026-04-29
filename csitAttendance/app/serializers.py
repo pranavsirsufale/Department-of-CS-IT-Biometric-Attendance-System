@@ -83,9 +83,14 @@ class TeacherCreateSerializer(serializers.ModelSerializer):
         return staff
 
 class StudentSerializer(serializers.ModelSerializer):
+    year = serializers.ReadOnlyField(source='semester.year.year')
+    batchStartYear = serializers.ReadOnlyField(source='semester.year.batchStartYear')
+    batchEndYear = serializers.ReadOnlyField(source='semester.year.batchEndYear')
+    program = serializers.ReadOnlyField(source='semester.year.program.name')
+    semesterNumber = serializers.ReadOnlyField(source='semester.semester')
     class Meta:
         model = Student
-        fields = "__all__"
+        fields = ["id", "prn", "name", "gender", "rollNumber", "semester", "semesterNumber", "program", "year", "batchStartYear", "batchEndYear"]
 
 class BiometricSerializer(serializers.ModelSerializer):
     class Meta:
@@ -121,30 +126,35 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class TimetableSerializer(serializers.ModelSerializer):
     startDate = serializers.DateField(write_only=True)
     endDate = serializers.DateField(write_only=True)
-    program = serializers.ReadOnlyField(source='semester.year.program.name')
+    program = serializers.ReadOnlyField(source='semesters.all.year.program.name')
     class Meta:
         model = Timetable
-        fields = ['id', 'weekday', 'startTime', 'endTime', 'classType', 'semester', 'teacher', 'startDate', 'endDate', 'program']
-        depth = 2
+        fields = ['id', 'weekday', 'startTime', 'endTime', 'classType', 'semesters', 'teacher', 'startDate', 'endDate', 'program', "isCombined"]
+        depth = 3
 
     def create(self, validatedData):
         startDate = validatedData.pop('startDate')
         endDate = validatedData.pop('endDate')
+        semesters = validatedData.pop('semesters')
         timetable = Timetable.objects.create(**validatedData)
+        timetable.semesters.set(semesters)
         timetable._startDate = startDate
         timetable._endDate = endDate
         return timetable
 
     def to_internal_value(self, data):
         self.fields['classType'] = serializers.PrimaryKeyRelatedField(queryset=ClassType.objects.all())
-        self.fields['semester'] = serializers.PrimaryKeyRelatedField(queryset=Semester.objects.all())
+        self.fields['semesters'] = serializers.PrimaryKeyRelatedField(many=True, queryset=Semester.objects.all())
         self.fields['teacher'] = serializers.PrimaryKeyRelatedField(queryset=Teacher.objects.all())
         return super().to_internal_value(data)
     
 class SessionSerializer(serializers.ModelSerializer):
+    subjectName = serializers.ReadOnlyField(source='timetable.classType.subject.name')
+    timetable = TimetableSerializer(read_only=True)
     class Meta:
         model = Session
-        fields = "__all__"
+        fields = ["id", "timetable", "startDateTime", "subjectName"]
+        # depth = 2
 
 class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:

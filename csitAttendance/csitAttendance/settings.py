@@ -58,7 +58,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'csitAttendance.wsgi.application'
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        # "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "mysql.connector.django",
         "NAME": "attendance",
         "USER": "store",
         "PASSWORD": "Store@123",

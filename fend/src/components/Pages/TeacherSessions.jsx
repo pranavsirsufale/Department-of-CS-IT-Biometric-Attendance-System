@@ -96,6 +96,59 @@ const TeacherSessions = () => {
     ));
   }
 
+  const handleVerifyBiometric = async (student) => {
+      try {
+          setLoading(true);
+
+          console.log("student from verify:", student)
+          // STEP 1: Get student's biometric template from backend
+          // const resBio = await fetch(`${API_BASE}/biometric/?student=${student.id}`, {
+          //     headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+          // });
+
+          // const bioData = await resBio.json();
+
+          // if (!bioData || bioData.length === 0) {
+          //     alert("No biometric registered for this student");
+          //     return;
+          // }
+
+          // const template = bioData[0].biometric;
+          // template = student.biometric
+
+          console.log("Sending this template ", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ template: student.biometric })
+          })
+
+          // STEP 2: Send template to verification service
+          const verifyRes = await fetch("http://127.0.0.1:5000/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ template: student.biometric })
+          });
+
+
+
+          const verifyData = await verifyRes.json();
+
+          console.log("Verify Response:", verifyData);
+
+          // STEP 3: Update attendance
+          setAttendance(prev => ({
+              ...prev,
+              [student.id]: verifyData.match === true
+          }));
+
+      } catch (err) {
+          console.error("Verification Error:", err);
+          alert("Verification failed");
+      } finally {
+          setLoading(false);
+      }
+  };
+
   const getSemesterIdsInQueryManner = (semesters) => {
     const semesterIds = semesters.map(sem => sem.id);
     return semesterIds?.map(id => `semesters=${id}`).join("&");
@@ -128,10 +181,10 @@ const TeacherSessions = () => {
           initialStore[sId] = record.status;
         });
         studentData.forEach(s => {
-          if (!(s.id in initialStore)) initialStore[s.id] = true;
+          if (!(s.id in initialStore)) initialStore[s.id] = false;
         });
       } else {
-        studentData.forEach(s => initialStore[s.id] = true);
+        studentData.forEach(s => initialStore[s.id] = false);
       }
       setAttendance(initialStore);
       setView('attendance');
@@ -365,12 +418,32 @@ const TeacherSessions = () => {
                                             <p className="text-[13px] font-bold text-slate-700 uppercase font-mono">Program: {student.program} | Semester: {student.semesterNumber}</p>
                                         </td>
                                         <td className="px-10 py-6 text-right">
+{/* 
                                             <button 
                                                 onClick={() => toggleStudent(student.id)}
                                                 className={`relative w-14 h-8 transition-all rounded-full p-1 border-2 ${attendance[student.id] ? 'bg-emerald-500 border-emerald-400' : 'bg-slate-200 border-slate-200'}`}
                                             >
                                                 <div className={`w-5 h-5 bg-white rounded-full shadow-md transition-all transform ${attendance[student.id] ? 'translate-x-6' : 'translate-x-0'}`} />
+                                            </button> */}
+                                            <div className="flex items-center justify-end gap-3">
+
+                                            {/* Status indicator (read-only) */}
+                                            <div className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest 
+                                                ${attendance[student.id] ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-600'}`}>
+                                                {attendance[student.id] ? 'Present' : 'Absent'}
+                                            </div>
+
+                                            {/* Verify Button */}
+                                            <button
+                                                onClick={() => handleVerifyBiometric(student)}
+                                                className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 flex items-center gap-2"
+                                            >
+                                                <UserCheck size={14} />
+                                                Verify
                                             </button>
+
+                                        </div>
+
                                         </td>
                                     </tr>
                                 ))}

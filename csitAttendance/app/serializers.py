@@ -88,9 +88,11 @@ class StudentSerializer(serializers.ModelSerializer):
     batchEndYear = serializers.ReadOnlyField(source='semester.year.batchEndYear')
     program = serializers.ReadOnlyField(source='semester.year.program.name')
     semesterNumber = serializers.ReadOnlyField(source='semester.semester')
+    # template = serializer.ReadOnlyField(source='biometric')
+    biometric = serializers.ReadOnlyField(source='biometric.biometric')
     class Meta:
         model = Student
-        fields = ["id", "prn", "name", "gender", "rollNumber", "semester", "semesterNumber", "program", "year", "batchStartYear", "batchEndYear"]
+        fields = ["id", "prn", "name", "gender", "rollNumber", "semester", "semesterNumber", "program", "year", "batchStartYear", "batchEndYear", "biometric"]
 
 class BiometricSerializer(serializers.ModelSerializer):
     class Meta:

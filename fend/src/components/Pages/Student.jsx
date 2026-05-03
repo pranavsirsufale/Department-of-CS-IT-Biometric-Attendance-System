@@ -79,6 +79,43 @@ const Student = () => {
     setListSemesters(await res.json());
   };
 
+const handleGetBiometric = async (e) => {
+    e.preventDefault();
+
+    try {
+        setLoading(true);
+
+        const res = await fetch("http://127.0.0.1:5000/capture");
+
+        if (!res.ok) {
+            throw new Error("Server error while capturing biometric");
+        }
+
+        const data = await res.json();
+        // console.log("Handle get biometric response", data)
+
+        // Validate response format
+        if (data.status !== "success" || !data.template) {
+            throw new Error("Invalid biometric response");
+        }
+
+        // Store Base64 template
+        setBiometricForm(prev => ({
+            ...prev,
+            biometric: data.template
+        }));
+
+        // console.log("Captured Template:", data.template);
+        alert("Biometric Captured Successfully!");
+
+    } catch (err) {
+        console.error("Biometric Error:", err);
+        alert("Failed to capture biometric");
+    } finally {
+        setLoading(false);
+    }
+};
+
   const fetchStudentsBySemester = async (semId) => {
     setSelSemList(semId);
     setLoading(true);
@@ -111,21 +148,67 @@ const Student = () => {
     }
   };
 
-  const handleLinkBiometric = async (e) => {
+const handleLinkBiometric = async (e) => {
     e.preventDefault();
-    console.log("Biometric Form Data:", biometricForm);
-    const res = await fetch(`${API_BASE}/biometric/`, {
-        method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify(biometricForm),
-    });
-    const data = await res.json();
-    console.log("Biometric API Response:", data);
-    if (res.ok) {
-        alert("Biometric Data Linked!");
-        setBiometricForm({ student: '', biometric: '' });
+
+    if (!biometricForm.student) {
+        alert("Please select a student");
+        return;
     }
-  };
+
+    try {
+        setLoading(true);
+
+        // STEP 1: Capture biometric
+        const captureRes = await fetch("http://127.0.0.1:5000/capture");
+
+        if (!captureRes.ok) {
+            throw new Error("Failed to capture biometric");
+        }
+
+        const captureData = await captureRes.json();
+
+        if (captureData.status !== "success" || !captureData.template) {
+            throw new Error("Invalid biometric response");
+        }
+
+        // STEP 2: Update UI immediately
+        const updatedForm = {
+            ...biometricForm,
+            biometric: captureData.template
+        };
+
+        setBiometricForm(updatedForm);
+
+        // STEP 3: Send to backend
+        console.log("Sending Data:", updatedForm);
+
+        const saveRes = await fetch(`${API_BASE}/biometric/`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify(updatedForm),
+        });
+
+        const saveData = await saveRes.json();
+        console.log("Biometric API Response:", saveData);
+
+        if (!saveRes.ok) {
+            throw new Error("Failed to save biometric");
+        }
+
+        alert("Biometric Captured & Linked Successfully!");
+
+        // Reset form
+        setBiometricForm({ student: '', biometric: '' });
+
+    } catch (err) {
+        console.error("Biometric Flow Error:", err);
+        alert(err.message || "Something went wrong");
+    } finally {
+        setLoading(false);
+    }
+};
+
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-10 font-sans text-slate-900">
@@ -215,20 +298,30 @@ const Student = () => {
                 </h2>
                 <form onSubmit={handleLinkBiometric} className="space-y-4">
                     <select className="w-full p-3.5 bg-slate-800 border-none rounded-2xl font-bold text-sm text-slate-300 outline-none"
-                        value={biometricForm.studentId} onChange={(e) => setBiometricForm({...biometricForm, student: e.target.value})} required>
+                        // value={biometricForm.studentId} 
+                        value={biometricForm.student}
+                        onChange={(e) => setBiometricForm({...biometricForm, student: e.target.value})} required>
                         <option value="">Select Student to Link</option>
                         {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.prn})</option>)}
                     </select>
                     <textarea 
                         placeholder="Biometric Tempate will be auto fetched..." 
                         className="w-full p-3.5 bg-slate-800 border-none rounded-2xl font-mono text-xs text-indigo-300 outline-none h-24 resize-none"
-                        value={biometricForm.biometricData}
+                        // value={biometricForm.biometricData}
+                        readOnly
+                        value={biometricForm.biometric}
                         onChange={(e) => setBiometricForm({...biometricForm, biometric: e.target.value})}
-                        required
                     />
-                    <button className="w-full bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-lg shadow-indigo-900/20 uppercase text-xs tracking-widest">
+                    {/* <button className="w-full bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-lg shadow-indigo-900/20 uppercase text-xs tracking-widest">
                         Get Biometric Template
-                    </button>
+                    </button> */}
+                  <button 
+                      type="submit"
+                      className="w-full bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-lg uppercase text-xs tracking-widest flex items-center justify-center gap-2"
+                  >
+                      {loading ? <Loader2 className="animate-spin" size={16}/> : <BioIcon size={16}/>}
+                      {loading ? "Processing..." : "Capture & Link Biometric"}
+                  </button>
                 </form>
             </div>
           </div>

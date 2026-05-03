@@ -98,9 +98,35 @@ class StudentViewSet(ModelViewSet):
             queryset = queryset.filter(semester__id__in=semesterIds).distinct()
         return queryset
 
+# class BiometricViewSet(ModelViewSet):
+#     queryset = Biometric.objects.all()
+#     serializer_class = BiometricSerializer
+
 class BiometricViewSet(ModelViewSet):
     queryset = Biometric.objects.all()
     serializer_class = BiometricSerializer
+
+    def create(self, request, *args, **kwargs):
+        print("Incoming Biometric Data:", request.data)   # 🔥 ADD THIS
+
+        student_id = request.data.get("student")
+
+        try:
+            biometric = Biometric.objects.get(student_id=student_id)
+            print("Updating existing biometric")   # 🔥
+
+            serializer = self.get_serializer(biometric, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
+        except Biometric.DoesNotExist:
+            print("Creating new biometric")   # 🔥
+
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer

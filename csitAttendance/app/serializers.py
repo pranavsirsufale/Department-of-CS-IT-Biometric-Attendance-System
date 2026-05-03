@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.db import transaction
+<<<<<<< HEAD
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+=======
+>>>>>>> 86c5c22 (add backend and frontend logic)
 from .models import (University, Discipline, Department, AcademicLevel, Program, Year, Semester, Subject, DeliveryMode, ClassType, 
                     StaffType, Teacher, Student, Biometric, Timetable, Session, Attendance)
 
@@ -83,6 +86,7 @@ class TeacherCreateSerializer(serializers.ModelSerializer):
         return staff
 
 class StudentSerializer(serializers.ModelSerializer):
+<<<<<<< HEAD
     year = serializers.ReadOnlyField(source='semester.year.year')
     batchStartYear = serializers.ReadOnlyField(source='semester.year.batchStartYear')
     batchEndYear = serializers.ReadOnlyField(source='semester.year.batchEndYear')
@@ -93,10 +97,16 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ["id", "prn", "name", "gender", "rollNumber", "semester", "semesterNumber", "program", "year", "batchStartYear", "batchEndYear", "biometric"]
+=======
+    class Meta:
+        model = Student
+        fields = "__all__"
+>>>>>>> 86c5c22 (add backend and frontend logic)
 
 class BiometricSerializer(serializers.ModelSerializer):
     class Meta:
         model = Biometric
+<<<<<<< HEAD
         fields = ["student", "biometric"]
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -163,3 +173,6 @@ class AttendanceSerializer(serializers.ModelSerializer):
         model = Attendance
         fields = "__all__"
 
+=======
+        fields = "__all__"
+>>>>>>> 86c5c22 (add backend and frontend logic)

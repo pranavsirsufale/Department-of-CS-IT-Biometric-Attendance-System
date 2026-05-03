@@ -104,7 +104,11 @@ class Student(models.Model):
         return self.name
 
 class Biometric(models.Model):
+<<<<<<< HEAD
     student = models.OneToOneField(Student, on_delete=models.CASCADE)
+=======
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, unique=True, primary_key=True)
+>>>>>>> 86c5c22 (add backend and frontend logic)
     biometric = models.TextField(null=True)
 
     def __str__(self):

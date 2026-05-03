@@ -4,8 +4,12 @@ import './index.css'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom'
 import Layout from './Layout.jsx'
 import {Home, About, Contact,User,Github, githubInfoLoader} from './components'
+<<<<<<< HEAD
 import {University, Discipline, Department, AcademicLevel, Program, AcademicTimeline, Subject, Staff, Student, Login, Dashboard, 
   Timetable, TeacherSessions} from './components/Pages'
+=======
+import {University, Discipline, Department, AcademicLevel, Program, AcademicTimeline, Subject, Staff, Student} from './components/Pages'
+>>>>>>> 86c5c22 (add backend and frontend logic)
 
 
 const router = createBrowserRouter(
@@ -21,10 +25,13 @@ createRoutesFromElements(
     <Route path='class-type' element={<Subject/>}/>
     <Route path='staff' element={<Staff/>}/>
     <Route path='student' element={<Student/>}/>
+<<<<<<< HEAD
     <Route path='login' element={<Login/>}/>
     <Route path='dashboard' element={<Dashboard/>}/>
     <Route path='timetable' element={<Timetable/>}/>
     <Route path='teacher-session' element={<TeacherSessions/>}/>
+=======
+>>>>>>> 86c5c22 (add backend and frontend logic)
     <Route path='about'  >
       <Route path='' element={<About/>} />
       <Route path='user' element={<User/>} />

@@ -3,13 +3,19 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+<<<<<<< HEAD
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+=======
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
+>>>>>>> 86c5c22 (add backend and frontend logic)
 from .models import (University, Discipline, Department, AcademicLevel, Program, Year, Semester, Subject, StaffType, DeliveryMode, ClassType, 
                     Teacher, Student, Biometric, Timetable, Session, Attendance)
 from .serializers import (UniversitySerializer, DisciplineSerializer, DepartmentSerializer, AcademicLevelSerializer, ProgramSerializer, 
                           YearSerializer, SemesterSerializer, StaffTypeSerializer, SubjectSerializer, DeliveryModeSerializer, ClassTypeSerializer, 
+<<<<<<< HEAD
                           TeacherCreateSerializer, StudentSerializer, BiometricSerializer, MyTokenObtainPairSerializer, TimetableSerializer,
                           SessionSerializer, AttendanceSerializer)
 
@@ -17,6 +23,9 @@ class StandardPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'page_size'
     max_page_size = 100
+=======
+                          TeacherCreateSerializer, StudentSerializer, BiometricSerializer)
+>>>>>>> 86c5c22 (add backend and frontend logic)
 
 class UniversityViewSet(ModelViewSet):
     queryset = University.objects.all()
@@ -84,6 +93,7 @@ class TeacherViewSet(ModelViewSet):
     serializer_class = TeacherCreateSerializer
 
 class StudentViewSet(ModelViewSet):
+<<<<<<< HEAD
     permission_classes = [IsAuthenticated]
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
@@ -197,3 +207,11 @@ class AttendanceViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"message": "Attendance recorded Successfully."}, status=status.HTTP_201_CREATED)
+=======
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+class BiometricViewSet(ModelViewSet):
+    queryset = Biometric.objects.all()
+    serializer_class = BiometricSerializer
+>>>>>>> 86c5c22 (add backend and frontend logic)

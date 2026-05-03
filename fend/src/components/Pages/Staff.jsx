@@ -48,8 +48,11 @@ const Staff = () => {
     e.preventDefault();
     await fetch(`${API_BASE}/staff-type/`, {
       method: 'POST',
+<<<<<<< HEAD
       // access_token : localStorage.getItem("accessToken"),
       // refresh_token: localStorage.getItem("refreshToken"),
+=======
+>>>>>>> 86c5c22 (add backend and frontend logic)
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(staffTypeForm),
     });
@@ -59,7 +62,10 @@ const Staff = () => {
 
   const handleAddTeacher = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     console.log(teacherForm)
+=======
+>>>>>>> 86c5c22 (add backend and frontend logic)
     await fetch(`${API_BASE}/teacher/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -122,6 +128,7 @@ const Staff = () => {
                 <UserCircle size={16} /> 2. Faculty Profile
               </h2>
               <form onSubmit={handleAddTeacher} className="space-y-3">
+<<<<<<< HEAD
 
                 <select className="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none font-medium"
                   value={teacherForm.department} onChange={(e) => setTeacherForm({...teacherForm, department: e.target.value})} required>
@@ -135,6 +142,8 @@ const Staff = () => {
                   {staffTypes.map(t => <option key={t.id} value={t.id}>{t.staffType}</option>)}
                 </select>
 
+=======
+>>>>>>> 86c5c22 (add backend and frontend logic)
                 <input type="text" placeholder="Username" className="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none" 
                   value={teacherForm.username} onChange={(e) => setTeacherForm({...teacherForm, username: e.target.value})} required />
 
@@ -150,6 +159,21 @@ const Staff = () => {
                 <input type="text" placeholder="Mobile No." className="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none" 
                   value={teacherForm.mobile} onChange={(e) => setTeacherForm({...teacherForm, mobile: e.target.value})} required />
 
+<<<<<<< HEAD
+=======
+                <select className="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none font-medium"
+                  value={teacherForm.staffType} onChange={(e) => setTeacherForm({...teacherForm, staffType: e.target.value})} required>
+                  <option value="">Select Role</option>
+                  {staffTypes.map(t => <option key={t.id} value={t.id}>{t.staffType}</option>)}
+                </select>
+
+                <select className="w-full p-3 bg-slate-50 border rounded-xl text-sm outline-none font-medium"
+                  value={teacherForm.department} onChange={(e) => setTeacherForm({...teacherForm, department: e.target.value})} required>
+                  <option value="">Department</option>
+                  {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+
+>>>>>>> 86c5c22 (add backend and frontend logic)
                 <div className="flex items-center gap-2 px-1 py-2">
                   <input type="checkbox" className="w-4 h-4 rounded text-emerald-600" 
                     checked={teacherForm.isAdmin} onChange={(e) => setTeacherForm({...teacherForm, isAdmin: e.target.checked})} />
